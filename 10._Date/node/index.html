@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date Fetcher</title>
+</head>
+<body>
+
+  <h1>Current Date:</h1>
+  <p id="date-container">Loading...</p>
+
+  <script>
+    // JavaScript code to fetch the date and update the HTML content
+    const dateContainer = document.getElementById('date-container');
+
+    // Function to fetch the current date
+    const getCurrentDate = async () => {
+      try {
+        const response = await fetch('https://0251-195-249-146-100.ngrok-free.app/get-date'); // Change the URL to your Ngrok endpoint
+        const data = await response.json();
+
+        // Update the HTML content with the fetched date
+        dateContainer.textContent = `Current Date: ${data.date}`;
+      } catch (error) {
+        console.error('Error fetching date:', error);
+        dateContainer.textContent = 'Error fetching date';
+      }
+    };
+
+    // Call the function to fetch the date when the page loads
+    getCurrentDate();
+  </script>
+
+</body>
+</html>
