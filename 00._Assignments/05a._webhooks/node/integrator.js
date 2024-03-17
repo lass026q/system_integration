@@ -11,7 +11,7 @@ app.post('/webhook', (req, res) => {
 
 const registerWebhook = async () => {
     const url = 'http://localhost:3000/register'; // Exposee's registration endpoint
-    const webhookUrl = 'http://localhost:3001/webhook'; // Your webhook endpoint
+    const webhookUrl = 'http://localhost:3001s/webhook'; // Your webhook endpoint
     const eventType = 'payment received'; // The event type you're interested in
 
     try {

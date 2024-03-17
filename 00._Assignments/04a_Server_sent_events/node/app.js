@@ -20,12 +20,29 @@ app.get('/events', (req, res) => {
         try {
             const response = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${SYMBOL}&apikey=${API_KEY}`);
             console.log(response.data);
-            const stockPrice = response.data['Global Quote']['05. price'];
-            console.log(stockPrice);
-            res.write(`data: ${JSON.stringify({ symbol: SYMBOL, price: stockPrice })}\n\n`);
+
+            const globalQuote = response.data['Global Quote'];
+        
+            const stockInfo = {
+                symbol: SYMBOL,
+                open: globalQuote['02. open'],
+                high: globalQuote['03. high'],
+                low: globalQuote['04. low'],
+                price: globalQuote['05. price'],
+                volume: globalQuote['06. volume'],
+                latestTradingDay: globalQuote['07. latest trading day'],
+                previousClose: globalQuote['08. previous close'],
+                change: globalQuote['09. change'],
+                changePercent: globalQuote['10. change percent']
+            };
+
+            console.log(stockInfo);
+      
+            res.write(`data: ${JSON.stringify(stockInfo)}\n\n`);
         } catch (error) {
             console.error('Error fetching stock price:', error);
         }
+        
     };
 
     const intervalId = setInterval(() => {
