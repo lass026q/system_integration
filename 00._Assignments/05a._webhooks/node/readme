@@ -1,44 +1,89 @@
-To subscribe to the webhook system, you must perform a POST request to the URL of the server followed by the "/order" endpoint. The POST request must contain a body that contains amount and url. (The url being the url from your server, which will be called, once an event is triggered.)
+# Webhook Subscription Guide
+
+Welcome to the webhook subscription guide. This document will walk you through the steps to subscribe to and interact with our webhook system, including how to initiate a subscription, check active transactions, and unsubscribe from the service.
+
+## Subscribing to the Webhook
+
+To start receiving webhook events, you need to subscribe by making a POST request to our server with specific details about your order and the endpoint on your server that will handle incoming webhook events.
+
+### Initiating a Subscription
+
+Send a POST request to the `/order` endpoint with the amount and the URL of your webhook handler as JSON data.
+
+**Request:**
+
+```http
+POST https://infinite-wired-magpie.ngrok-free.app/order
+```
+
+**Payload:**
 
 ```json
-
-POST: "https://infinite-wired-magpie.ngrok-free.app/order"
-
 {
   "amount": 100,
-  "url": "http://url/updatepayment"
+  "url": "http://yourserver.com/updatepayment"
 }
 ```
 
+Replace `http://yourserver.com/updatepayment` with the actual URL of your webhook handler.
 
-You can perform a GET request to "/transactions" endpoint, which will return a list of all active transactions. This can be used to retrieve the ID of your transaction, which can then be used to unsubscribe from the webhook.
+## Checking Active Transactions
 
+To view all active transactions, you can make a GET request to the `/transactions` endpoint. This will return a list of all transactions, which includes the IDs that you can use to manage your subscriptions.
+
+**Request:**
+
+```http
+GET https://infinite-wired-magpie.ngrok-free.app/transactions
 ```
-GET "https://infinite-wired-magpie.ngrok-free.app/transactions"
+
+## Unsubscribing from the Webhook
+
+If you wish to stop receiving webhook events for a particular subscription, you can unsubscribe by making a POST request to the `/cancelpayment/{id}` endpoint, where `{id}` is the ID of the subscription you want to cancel.
+
+**Example:**
+
+```http
+POST https://infinite-wired-magpie.ngrok-free.app/cancelpayment/123
 ```
 
+Replace `123` with the actual ID of your subscription. A successful request will return a status code 200 and a confirmation message.
 
-To unsubscribe from the webhook system, you must perform a POST request to the URL of the server followed by the "/cancelpayment/{id}" endpoint. The POST request must contain the path parameter id, which refers to the id of the subscription to be deleted.
+## Interacting with the Webhook System
 
-Example of unsubscribing:
+Once your subscriptions are set up, your specified endpoint will receive POST requests from our system whenever an event is triggered.
 
-POST "https://infinite-wired-magpie.ngrok-free.app/cancelpayment/{id}"
+### Example Webhook Handler
 
-If done correctly, the server will respond with status code 200, and a message implying the subscription was unregistered successfully.
+Below is a simple example of a webhook receiver endpoint using Node.js and Express:
 
+```javascript
+const express = require('express');
+const app = express();
 
-Interacting with the Webhook system
+app.use(express.json());
 
-Now that you have your subscriptions set up, it's time to interact with the system.
-
-For this to work, it will require that you have made a POST endpoint in your own webserver and that the URL in the subscription matches the endpoint.
-
-Simple example of recieving endpoint in NodeJS with Express
-
-app.post('/updatepayment', express.json(), (req, res) => {
+app.post('/updatepayment', (req, res) => {
     const { orderId, status } = req.body;
 
-    console.log(req.body);
-    res.status(200).send('OK');
+    console.log(req.body); // Log the incoming webhook payload for debugging
+    res.status(200).send('OK'); // Acknowledge receipt of the webhook
 });
-You can perform a POST request to the "/ping" endpoint, which will instruct the system to perform a POST request to all subscriptions.    
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+```
+
+Ensure your server is properly configured to accept POST requests at the specified endpoint, and replace `/updatepayment` with your actual endpoint path if different.
+
+## Testing the Subscription
+
+You can test your subscription by making a POST request to the `/ping` endpoint. This will prompt our system to send a test webhook event to all subscribed endpoints.
+
+**Request:**
+
+```http
+POST https://infinite-wired-magpie.ngrok-free.app/ping
+```
+
+This concludes the webhook subscription guide. If you follow these steps, you should be able to successfully subscribe to, interact with, and manage your webhook subscriptions with our system.
