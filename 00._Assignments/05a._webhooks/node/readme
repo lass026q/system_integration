@@ -1,0 +1,44 @@
+To subscribe to the webhook system, you must perform a POST request to the URL of the server followed by the "/order" endpoint. The POST request must contain a body that contains amount and url. (The url being the url from your server, which will be called, once an event is triggered.)
+
+```json
+
+POST: "https://infinite-wired-magpie.ngrok-free.app/order"
+
+{
+  "amount": 100,
+  "url": "http://url/updatepayment"
+}
+```
+
+
+You can perform a GET request to "/transactions" endpoint, which will return a list of all active transactions. This can be used to retrieve the ID of your transaction, which can then be used to unsubscribe from the webhook.
+
+```
+GET "https://infinite-wired-magpie.ngrok-free.app/transactions"
+```
+
+
+To unsubscribe from the webhook system, you must perform a POST request to the URL of the server followed by the "/cancelpayment/{id}" endpoint. The POST request must contain the path parameter id, which refers to the id of the subscription to be deleted.
+
+Example of unsubscribing:
+
+POST "https://infinite-wired-magpie.ngrok-free.app/cancelpayment/{id}"
+
+If done correctly, the server will respond with status code 200, and a message implying the subscription was unregistered successfully.
+
+
+Interacting with the Webhook system
+
+Now that you have your subscriptions set up, it's time to interact with the system.
+
+For this to work, it will require that you have made a POST endpoint in your own webserver and that the URL in the subscription matches the endpoint.
+
+Simple example of recieving endpoint in NodeJS with Express
+
+app.post('/updatepayment', express.json(), (req, res) => {
+    const { orderId, status } = req.body;
+
+    console.log(req.body);
+    res.status(200).send('OK');
+});
+You can perform a POST request to the "/ping" endpoint, which will instruct the system to perform a POST request to all subscriptions.    

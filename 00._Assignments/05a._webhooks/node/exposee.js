@@ -25,6 +25,7 @@ db.run(`CREATE TABLE IF NOT EXISTS transactions (
     console.log('Created the transaction table.');
     });
 
+
 db.run(`CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     amount REAL,
@@ -35,6 +36,7 @@ db.run(`CREATE TABLE IF NOT EXISTS orders (
     }
     console.log('Created the orders table.');
 });
+
 
 app.get('/', (req, res) => {
     res.send({message: 'Hello World!'});
@@ -124,10 +126,10 @@ app.post('/update/:id/:status', (req, res) => {
         } else {
             res.status(404).send({ message: 'Transaction not found' });
         }
-    });
+    });c
 });
 
-app.get('ping', (req, res) => {
+app.get('/ping', (req, res) => {
     //send a ping to all webhooks
     db.all(`SELECT * FROM transactions WHERE status='pending'`, (err, rows) => {
         if (err) {
@@ -156,19 +158,19 @@ app.get('ping', (req, res) => {
 // Integrator start
  
 app.post('/order', express.json(), (req, res) => {
-    const {amount} = req.body;
-    const webhook = 'https://67b1c2f19beee7f1d353eafbef6e3563.serveo.net/updatepayment'; // my webhook URL
+    const { amount, webhook } = req.body; // webhook URL
 
-    db.run(`INSERT INTO orders (amount, payment_status) VALUES (?,?)`, [amount, 'pending'], function(err) {
+    db.run(`INSERT INTO orders (amount, payment_status, webhook) VALUES (?, ?, ?)`, [amount, 'pending', webhook], function(err) 
+ {
         if (err) {
             console.error(err.message);
             res.status(500).send({message: 'Internal Server Error'});
         } else {
             const orderId = this.lastID;
-            res.send({orderId: orderId, status: 'pending'});
+            res.send({orderId: orderId, status: 'pending', webhook: webhook});
 
             // Send a POST request to the payment solution
-            fetch('/', { // exposee webhook URL
+            fetch('/ngrok http --domain=infinite-wired-magpie.ngrok-free.app 80', { // exposee webhook URL
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({orderId: orderId, amount: amount, webhook: webhook})
