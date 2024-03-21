@@ -1,2 +1,13 @@
-A node SSE Example fetching a stocks price from a free api and returning it to the client
-```
+# Real-Time Stock Price Updates with Server-Sent Events (SSE)
+
+This project demonstrates how to use Server-Sent Events (SSE) to provide real-time updates of stock prices in a web application. The application uses Node.js with Express for the backend and SSE to push updates from the server to the client.
+
+This project uses a free api called Alpha Vantage to get the stock price data. The api allows you to make requests of specifics stocks in real time. This project uses the IBM stock, and updates the information in real time every 10 seconds. This variable can be modified to fetch information more or less frequent.
+
+## How It Works
+
+- The server is set up to serve static files from the `public` directory.
+- The `/events` endpoint is configured to handle SSE connections. It sets the appropriate headers for SSE and sends stock price updates in real-time.
+- The stock price data is fetched from Alpha Vantage using the symbol `IBM` every 10 seconds (configurable). The data includes various stock information like open, high, low, price, and volume.
+- When a client connects to the `/events` endpoint, the server starts sending stock price updates in real-time until the client disconnects.
+
