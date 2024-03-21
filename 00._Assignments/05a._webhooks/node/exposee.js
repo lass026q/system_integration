@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 
 const app = express();
 
-// Create a new database (or open it if it already exists)
+// Creating a new database (or open it if it already exists)
 let db = new sqlite3.Database('./mydb.sqlite', (err) => {
     if (err) {
       console.error(err.message);
@@ -42,7 +42,6 @@ app.get('/', (req, res) => {
     res.send({message: 'Hello World!'});
 });
 
-// Exposee start
 
 app.post('/payment', express.json(), (req, res) => {
     console.log(req.body);
@@ -106,15 +105,15 @@ app.post('/update/:id/:status', (req, res) => {
                     console.error(err.message);
                     res.status(500).send({ message: 'Internal Server Error' });
                 } else {
-                    // Send status back to the webhook
+
                     try {
                         const sendStatus = async () => {
                             const response = await fetch(row.webhook, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ orderid: row.orderid, status: status }) // Use the new status
+                                body: JSON.stringify({ orderid: row.orderid, status: status }) 
                             });
-                            res.send({ orderid: row.orderid, status: status }); // Send the new status
+                            res.send({ orderid: row.orderid, status: status });
                         };
                         sendStatus();
                     } catch (err) {
@@ -153,31 +152,6 @@ app.get('/ping', (req, res) => {
     });
 });
 
-// Exposee end
-
-// Integrator start
- 
-app.post('/order', express.json(), (req, res) => {
-    const { amount, webhook } = req.body; // webhook URL
-
-    db.run(`INSERT INTO orders (amount, payment_status, webhook) VALUES (?, ?, ?)`, [amount, 'pending', webhook], function(err) 
- {
-        if (err) {
-            console.error(err.message);
-            res.status(500).send({message: 'Internal Server Error'});
-        } else {
-            const orderId = this.lastID;
-            res.send({orderId: orderId, status: 'pending', webhook: webhook});
-
-            // Send a POST request to the payment solution
-            fetch('/ngrok http --domain=infinite-wired-magpie.ngrok-free.app 80', { // exposee webhook URL
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({orderId: orderId, amount: amount, webhook: webhook})
-            }).catch(err => console.error(err.message));
-        }
-    });
-});
 
 app.post('/updatepayment', express.json(), (req, res) => {
     const { orderId, status } = req.body;
@@ -194,8 +168,6 @@ app.post('/updatepayment', express.json(), (req, res) => {
         }
     });
 });
-
-// Integrator end
 
 const PORT = 8080
 app.listen(PORT, () => {console.log(`http://localhost:${PORT}`)});
